@@ -73,3 +73,12 @@ meshgrid2 = function(...){
     return(l)
 
 }
+
+
+
+
+str = function(o) capture.output(print(o))
+
+funcstr = Vectorize(function(f) format(f)[2])  # function defined by function() will be list of "function(..)" and "function expression"
+
+factorfun = function(data) factor(funcstr(data))
