@@ -1,5 +1,6 @@
 library(devtools)
 source_url("https://raw.githubusercontent.com/schlichtanders/Rhelpers/master/helpers_idx.R") #rotation
+source_url("https://raw.githubusercontent.com/schlichtanders/Rhelpers/master/helpers_functional.R") # for argsenv
 
 attach.all <- function (x, overwrite = NA, name = "attach.all")  {
     rem <- names(x) %in% ls(.GlobalEnv)
