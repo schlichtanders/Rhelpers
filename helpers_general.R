@@ -1,22 +1,12 @@
 library(devtools)
-source_url("https://raw.githubusercontent.com/schlichtanders/Rhelpers/master/helpers_idx.R") #rotation
-source_url("https://raw.githubusercontent.com/schlichtanders/Rhelpers/master/helpers_functional.R") # for argsenv
 
-attach.all <- function (x, overwrite = NA, name = "attach.all")  {
-    rem <- names(x) %in% ls(.GlobalEnv)
-    if (!any(rem)) overwrite <- FALSE
-    rem <- names(x)[rem]
-    if (is.na(overwrite)) {
-        question <- paste("The following objects in .GlobalEnv will mask\nobjects in the attached database:\n", paste(rem, collapse = ", "), "\nRemove these objects from .GlobalEnv?", sep = "")
-        if (interactive()) {
-            if (.Platform$OS.type == "windows")  overwrite <- "YES" == winDialog(type = "yesno",  question)
-            else overwrite <- 1 == menu(c("YES", "NO"), graphics = FALSE, title = question)
-        }
-        else overwrite <- FALSE
-    }
-    if (overwrite) remove(list = rem, envir = .GlobalEnv)
-    attach(x, name = name)
-}
+rotation = function(x,n, sign=1) ((0:(x-1) - sign* n) %% x) + 1
+
+str = function(o) capture.output(print(o))
+
+funcstr = Vectorize(function(f) format(f)[2])  # function defined by function() will be list of "function(..)" and "function expression"
+
+factorfun = function(data) factor(funcstr(data))
 
 
 meshgrid = function(...){
@@ -40,45 +30,20 @@ meshgrid = function(...){
     Map(single_meshgrid, args, 1:N)
 }
 
-meshgrid2 = function(...){
-    args = argsenv(...)
-    # first extract additional parameters:
-    i_flatten = match("flatten", attr(args, 'formalnames'))
-    if(is.na(i_flatten)){
-        flatten = TRUE
-        tagnames = attr(args, 'tagnames')
-        formalnames = attr(args, 'formalnames')
-    } else {
-        flatten = args[[ attr(args, 'tagnames')[i_flatten] ]]
-        tagnames = attr(args, 'tagnames')[-i_flatten]
-        formalnames = attr(args, 'formalnames')[-i_flatten]
+
+
+attach.all <- function (x, overwrite = NA, name = "attach.all")  {
+    rem <- names(x) %in% ls(.GlobalEnv)
+    if (!any(rem)) overwrite <- FALSE
+    rem <- names(x)[rem]
+    if (is.na(overwrite)) {
+        question <- paste("The following objects in .GlobalEnv will mask\nobjects in the attached database:\n", paste(rem, collapse = ", "), "\nRemove these objects from .GlobalEnv?", sep = "")
+        if (interactive()) {
+            if (.Platform$OS.type == "windows")  overwrite <- "YES" == winDialog(type = "yesno",  question)
+            else overwrite <- 1 == menu(c("YES", "NO"), graphics = FALSE, title = question)
+        }
+        else overwrite <- FALSE
     }
-
-    # then proceed
-    N = length(tagnames)
-    mylength = function(t) length(args[[t]])
-    nargs = mapply(mylength, tagnames)
-    single_meshgrid = function(i, t){
-        Nrep = prod(nargs[names(nargs)!=t])
-        rot = rotation(N, i-1)
-        X = aperm(array(rep(args[[t]], Nrep), nargs[rot]), rot)
-        if (flatten)
-            dim(X) <- prod(nargs) # formerly NULL, which seems to be the official version, however as.data.frame cannot convert lists of functions of they do not have a dimension (while numbers work fine)
-        return(X)
-    }
-    l = Map(single_meshgrid, 1:N, tagnames)
-
-    if(all( formalnames != ""))
-        names(l)<-formalnames
-    return(l)
-
+    if (overwrite) remove(list = rem, envir = .GlobalEnv)
+    attach(x, name = name)
 }
-
-
-
-
-str = function(o) capture.output(print(o))
-
-funcstr = Vectorize(function(f) format(f)[2])  # function defined by function() will be list of "function(..)" and "function expression"
-
-factorfun = function(data) factor(funcstr(data))

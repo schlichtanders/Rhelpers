@@ -52,3 +52,44 @@ Map2 <- function (f, ...) {
   f <- match.fun(f)
   mapply2(FUN=f, ..., SIMPLIFY=FALSE)
 }
+
+
+
+
+
+rotation = function(x,n, sign=1) ((0:(x-1) - sign* n) %% x) + 1
+
+meshgrid2 = function(...){
+    args = argsenv(...)
+    # first extract additional parameters:
+    i_flatten = match("flatten", attr(args, 'formalnames'))
+    if(is.na(i_flatten)){
+        flatten = TRUE
+        tagnames = attr(args, 'tagnames')
+        formalnames = attr(args, 'formalnames')
+    } else {
+        flatten = args[[ attr(args, 'tagnames')[i_flatten] ]]
+        tagnames = attr(args, 'tagnames')[-i_flatten]
+        formalnames = attr(args, 'formalnames')[-i_flatten]
+    }
+
+    # then proceed
+    N = length(tagnames)
+    mylength = function(t) length(args[[t]])
+    nargs = mapply(mylength, tagnames)
+    single_meshgrid = function(i, t){
+        Nrep = prod(nargs[names(nargs)!=t])
+        rot = rotation(N, i-1)
+        X = aperm(array(rep(args[[t]], Nrep), nargs[rot]), rot)
+        if (flatten)
+            dim(X) <- prod(nargs) # formerly NULL, which seems to be the official version, however as.data.frame cannot convert lists of functions of they do not have a dimension (while numbers work fine)
+        return(X)
+    }
+    l = Map(single_meshgrid, 1:N, tagnames)
+
+    if(all( formalnames != ""))
+        names(l)<-formalnames
+    return(l)
+
+}
+
