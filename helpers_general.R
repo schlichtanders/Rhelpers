@@ -34,7 +34,7 @@ meshgrid = function(...){
         rot = rotation(N, i-1)
         X = aperm(array(rep(o, Nrep), nargs[rot]), rot)
         if (flatten)
-            dim(X) <- NULL
+            dim(X) <- prod(nargs) # formerly NULL, which seems to be the official version, however as.data.frame cannot convert lists of functions of they do not have a dimension (while numbers work fine)
         return(X)
     }
     Map(single_meshgrid, args, 1:N)
@@ -63,7 +63,7 @@ meshgrid2 = function(...){
         rot = rotation(N, i-1)
         X = aperm(array(rep(args[[t]], Nrep), nargs[rot]), rot)
         if (flatten)
-            dim(X) <- NULL
+            dim(X) <- prod(nargs) # formerly NULL, which seems to be the official version, however as.data.frame cannot convert lists of functions of they do not have a dimension (while numbers work fine)
         return(X)
     }
     l = Map(single_meshgrid, 1:N, tagnames)
