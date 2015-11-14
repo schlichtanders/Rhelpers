@@ -19,13 +19,38 @@ attach.all <- function (x, overwrite = NA, name = "attach.all")  {
 }
 
 
-
 meshgrid = function(...){
+    args = list(...)
+    print(names(args))
+    # first extract additional parameters:
+    flatten = args$flatten
+    if (is.null(flatten)) flatten = TRUE
+    else args$flatten <- NULL
+
+    # then proceed
+    N = length(args)
+    nargs = mapply(length, args)
+    single_meshgrid = function(i){
+        Nrep = prod(nargs[-i])
+        rot = rotation(N, i-1)
+        X = aperm(array(rep(args[[i]], Nrep), nargs[rot]), rot)
+        if (flatten)
+            dim(X) <- NULL
+        print(X)
+        return(X)
+    }
+    l = Map(single_meshgrid, 1:N)
+    names(l) <- names(args)
+    return(l)
+}
+
+
+meshgrid2 = function(...){
     args = argsenv(...)
     # first extract additional parameters:
     i_flatten = match("flatten", attr(args, 'formalnames'))
     if(is.na(i_flatten)){
-        flatten = FALSE
+        flatten = TRUE
         tagnames = attr(args, 'tagnames')
         formalnames = attr(args, 'formalnames')
     } else {
