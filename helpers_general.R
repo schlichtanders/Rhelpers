@@ -1,3 +1,6 @@
+library(devtools)
+source_url("https://raw.githubusercontent.com/schlichtanders/Rhelpers/master/helpers_idx.R") #rotation
+
 attach.all <- function (x, overwrite = NA, name = "attach.all")  {
     rem <- names(x) %in% ls(.GlobalEnv)
     if (!any(rem)) overwrite <- FALSE
