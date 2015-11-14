@@ -21,7 +21,6 @@ attach.all <- function (x, overwrite = NA, name = "attach.all")  {
 
 meshgrid = function(...){
     args = list(...)
-    print(names(args))
     # first extract additional parameters:
     flatten = args$flatten
     if (is.null(flatten)) flatten = TRUE
@@ -30,20 +29,16 @@ meshgrid = function(...){
     # then proceed
     N = length(args)
     nargs = mapply(length, args)
-    single_meshgrid = function(i){
+    single_meshgrid = function(o, i){
         Nrep = prod(nargs[-i])
         rot = rotation(N, i-1)
-        X = aperm(array(rep(args[[i]], Nrep), nargs[rot]), rot)
+        X = aperm(array(rep(o, Nrep), nargs[rot]), rot)
         if (flatten)
             dim(X) <- NULL
-        print(X)
         return(X)
     }
-    l = Map(single_meshgrid, 1:N)
-    names(l) <- names(args)
-    return(l)
+    Map(single_meshgrid, args, 1:N)
 }
-
 
 meshgrid2 = function(...){
     args = argsenv(...)
